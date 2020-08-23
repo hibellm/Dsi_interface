@@ -44,7 +44,8 @@ dashboardPagePlus(
                     animation = "pulse",
                     status = "info"
                 )
-            )
+            ),
+            div(h2("some title"))
         ),
         dropdownMenuOutput("messages"), 
         dropdownMenuOutput("notifications"),
@@ -64,15 +65,39 @@ dashboardPagePlus(
                   tags$link(rel="shortcut icon", href="myassets/favicon2.ico"),
                   useShinyjs(),
                   shinyFeedback::useShinyFeedback()
-                  # tags$script(src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"),
-                  # tags$script(src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.6/dist/semantic.min.js"),
-                  # tags$script("$('.ui.accordion').accordion();")
-                  
         ),    
-        setShadow(class = "dropdown-menu")
+        setShadow(class = "dropdown-menu"),
+        tabItems(
+            tabItem(tabName = "home", class="active",
+                    fluidRow(
+                        wellPanel(
+                            div(class="ui container",
+                                img(src="myassets/images/banners/th1.jpg", class="ui centered aligned huge")
+                            )
+                        )
+                    )
+            ),            
+            tabItem(tabName = "form",
+            ),
+            tabItem(tabName = "search"
+            ),
+            tabItem(tabName = "datatest",
+            ),
+            #REQUESTS THAT HAVE BEEN CLEANED
+            tabItem(tabName = "cleanreq",
+                    fluidRow(
+                        wellPanel( 
+                            tags$div(class = "ui segment teal inverted center aligned", h1("Requests")
+                            ),
+                            DTOutput("cleanreq_table")
+                        )
+                    )
+            )
+            
     ),
     rightSidebar(
         
     ),
     title = "DSI interface"
+)
 )

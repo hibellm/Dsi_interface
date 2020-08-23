@@ -7,10 +7,14 @@ library(shinyWidgets)
 library(mongolite)
 library(DT)
 library(lubridate)
+library(reticulate)
+library(glue)
 
 
-# STATIS VARIABLES
+# STATIC VARIABLES
 root <- getwd()
+
+use_python("E:/Python/Python36")
 
 
 # DATABASE CONNECTIONS
@@ -18,4 +22,4 @@ root <- getwd()
 mcon <- mongo(collection = "metrics", db = "dsi")
 tnmcon <- mongo(collection = "tsknotmsg", db = "dsi")
 tlcon <- mongo(collection = "timeline", db = "dsi")
-
+reqcon <- mongo(collection = "requests", db = "demo")

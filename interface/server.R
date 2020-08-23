@@ -1,28 +1,11 @@
-#
-# This is the server logic of a Shiny web application. You can run the
-# application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
 
-library(shiny)
-
-# Define server logic required to draw a histogram
 shinyServer(function(input, output, session) {
     
+    ######
+    # DATA
+    ######
     
-    output$distPlot <- renderPlot({
-
-        # generate bins based on input$bins from ui.R
-        x    <- faithful[, 2]
-        bins <- seq(min(x), max(x), length.out = input$bins + 1)
-
-        # draw the histogram with the specified number of bins
-        hist(x, breaks = bins, col = 'darkgray', border = 'white')
-
-    })
+    
     
     ##################
     # NAVIGATION ITEMS
@@ -97,6 +80,7 @@ shinyServer(function(input, output, session) {
         # DSI MEMBERS
         if (input$password == 'q') {
             sidebarMenu(
+                menuItem("Home",icon=icon("home"),tabName = "home"),
                 menuItem("Logged in as " ,badgeLabel = "DSI member", badgeColor = "blue"),
                 menuItem(h3("DSI Menu")),
                 menuItem("Form",icon=icon("tasks"),tabName = "form"),        
@@ -113,12 +97,13 @@ shinyServer(function(input, output, session) {
         # GUEST
         else if (input$password != 'q') {
             sidebarMenu(
+                menuItem("Home",icon=icon("home"),tabName = "home"),
                 menuItem("Logged in as ", badgeLabel = "Guest", badgeColor="yellow"),
                 menuItem(h3("Guest Menu")),
                 menuItem("Form",icon=icon("tasks"),tabName = "form"), 
                 menuItem("Search",icon=icon("search"),tabName = "search"),        
                 menuItem("Testing of data",icon=icon("table"),tabName = "datatest"),
-                menuItem("Testing of data",icon=icon("table"),tabName = "datatest2"),
+                menuItem("Testing of data",icon=icon("table"),tabName = "cleanreq"),
                 menuItem("Metrics",icon=icon("tasks"),tabName = "metrics1"),
                 menuItem("Summary",icon=icon("book"),tabName = "summary"),
                 menuItem("Documentation",icon=icon("book"),tabName = "documentation", badgeLabel = "new", badgeColor = "green"),
@@ -129,8 +114,79 @@ shinyServer(function(input, output, session) {
     
     # OBSERVE EVENTS ON SIDEBAR
 
+    ######
+    # TABS
+    ######
+    # CLEAN REQUEST TABLE
+    
+    cleanreq <- reqcon$find()
+    # FOR NESTED LISTS WOULD NEED TO UNWIND THEM SO THEY CAN BE EDITABLE
     
     
+    
+    output$cleanreq_table <- DT::renderDT({
+        DT::datatable(cleanreq,
+                      editable = TRUE,
+                      # Escape the HTML in all except 1st column (which has the buttons)
+                      escape = -1,
+                      options = list(
+                          autoWidth = TRUE,
+                          lengthMenu = c(5, 10, 15, 20),
+                          columnDefs = list(
+                              list(width = '200px', targets = c(1, 3)),
+                              list(className = 'dt-center', targets = 1),
+                              list(targets = 3,
+                                   render = JS(
+                                       "function(data, type, row, meta) {",
+                                       "return type === 'display' && data.length > 6 ?",
+                                       "'<span title=\"' + data + '\">' + data.substr(0, 6) + '...</span>' : data;",
+                                       "}") 
+                              ),
+                              list(targets = 6,
+                                   render = JS(
+                                       "function(data, type, row, meta) {",
+                                       "return '<div><i id=\"' + data[1] + data[2]+data[3]+'\" class=\"ui icon check circle inverted green\"></i>'",
+                                       " '<i id=\"' + data[2] + '\" class=\"ui icon times circle inverted red\"></i>'",
+                                       " '<i id=\"' + data[3] + '\" class=\"ui icon pause circle inverted blue\"></i>'",
+                                       " '<i id=\"' + data[4] + '\" class=\"ui icon times circle inverted red\"></i></div>'",
+                                       "}") 
+                              ),
+                              list(targets = 7,
+                                   render = JS(
+                                       "function(data, type, row, meta) {",
+                                       "return '<div id=\"' + data + '\" class=\"ui label green\">'",
+                                       " '<i id=\"' + data + '\" class=\"ui icon mail\"></i>'+data+'</div>'",
+                                       "}") 
+                              )                              
+                          )
+                      ))
+    }) 
+    
+
+    proxy = dataTableProxy('cleanreq_table')
+    
+    observeEvent(input$cleanreq_table_cell_edit, {
+        info = input$cleanreq_table_cell_edit
+        str(info)
+        i = info$row
+        j = info$col
+        v = info$value
+        
+        cleanreq[i, j] <<- DT::coerceValue(v, cleanreq[i, j])
+        print(cleanreq)
+
+        replaceData(proxy, cleanreq, resetPaging = FALSE)  # important
+    })
+    
+    
+    
+    
+    
+    
+    
+    
+    
+     
     
 }) #SERVER
 
